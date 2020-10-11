@@ -1,0 +1,200 @@
+#!/bin/bash
+
+# Inisiasi data yang digunakan semuanya
+FOLDER=/opt/Angular
+
+banner() {
+    printf "\e[1;92m||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||    \e[0m\n"
+    printf "\e[1;92m||                                                                                    ||    \e[0m\n"
+    printf "\e[1;92m|| \e[1;92m               _                            _                _                   \e[0m\e[1;92m  ||    \e[0m\n"
+    printf "\e[1;92m|| \e[1;92m        ____  | |    _   _     _    ___   _| |_   _   _    _| |  _    ____       \e[0m\e[1;92m  ||    \e[0m\n"
+    printf "\e[1;92m|| \e[1;91m       (__  | | |   | | | \   / |  /__ ) (_   _) | | | |  / _ | | |  / _  \      \e[0m\e[1;92m  ||    \e[0m\n"
+    printf "\e[1;92m|| \e[1;90m       / __ | | |_  | | |  \_/  | |___ |   | |_  | |_| | | |_ | | |  ||_| |      \e[0m\e[1;92m  ||    \e[0m\n"
+    printf "\e[1;92m|| \e[1;89m       \ __ | |___) |_| |_|\_/|_| (___/    |___) |_____|  \___| |_|  \____/      \e[0m\e[1;92m  ||    \e[0m\n"
+    printf "\e[1;92m||                                                                                    ||    \e[0m\n"
+    printf "\e[1;92m||                                                                                    ||    \e[0m\n"
+    printf "\e[1;92m||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||    \e[0m\n"
+
+    printf "\n"
+    printf "\e[1;77m\e[45m  Angular System Manajemen Author: Alimstudio/alimstudio.official (Github/IG)   \e[0m\n"
+    printf "\n"
+}
+
+checkroot() {
+    if [[ "$(id -u)" -ne 0 ]]; then
+        printf "\e[1;77mPlease, run this program as root!\n\e[0m"
+        exit 1
+    fi
+}
+
+# depedencies(){
+    # command -v node > /dev/null 2>&1 || { echo >&2 "I require awk but it's not installed. Aborting."; exit 1; }
+# }
+
+setup(){
+    # checkroot
+    banner
+    # depedencies
+
+    # if command -v nodejs >/dev/null 2>&1 || command -v node >/dev/null 2>&1 || command -v npm >/dev/null 2>&1 ; then
+    if command -v nodejs >/dev/null 2>&1 ; then
+        printf "\e[1;91m 1.Daftar Angular\n"
+        printf "\e[1;91m 2.Install Aplikasi Baru\n"
+        printf "\e[1;91m 3.Hapus Aplikasi\n"
+        printf "\e[1;91m 4.Bersihkan Layar\n"
+        printf "\e[1;91m 5.Keluar\n"
+
+        read -p $'\n\e[1;91mPilih Menu : \e[0m' sudahInstall
+
+        case $sudahInstall in
+            1)
+                daftarAngular 
+            ;;
+            2)
+                installNewAngular
+            ;;
+            3)
+                hapusAngular
+            ;;
+            4)
+                command clear
+                setup
+            ;;
+            5)
+                command clear
+                command exit
+            ;;
+            *)
+                setup
+            ;;
+        esac
+    else
+        printf "\e[1;95mAplikasi NodeJs Belum Terinstall\n\n"
+        printf "\e[1;95m 1.Install NodeJS\n"
+        printf "\e[1;95m 2.Keluar\n"
+    
+        read -p $'\n\e[1;92mPilih Menu Installasi : \e[0m' belumInstall
+
+        case $belumInstall in 
+        1) 
+            # command wget https://nodejs.org/dist/v12.19.0/node-v12.19.0-linux-x64.tar.xz && tar -zxf node-v12.19.0-linux-x64.tar.xz && cd node-v12.19.0-linux-x64 && ./configure && make && sudo make install
+            command sudo apt update && -y upgrade
+            command sudo apt install -y nodejs npm
+            printf "\e[1;77m\e[45m  Tunggu... Sedang Menginstall Angular   \e[0m\n"
+            command sudo npm install -g @angular/cli
+        ;;
+
+        2)
+            command exit
+        ;;
+        esac
+    fi
+}
+
+daftarAngular(){
+    if [ ! -d "$FOLDER" ] 
+    then
+        read -p $'\n\e[1;92m Folder Belum Ada, Buat Sekarang? [y/n] \e[0m' folderFound
+
+        case $folderFound in
+        y|Y)
+            command mkdir $FOLDER
+            installNewAngular
+        ;;
+        n|N)
+            daftarAngular
+        ;;
+        esac
+    else
+        TotalFolder=$((`stat -c %h $FOLDER` - 2))
+
+        if [ $TotalFolder -eq 0 ]; then
+            read -p $'\e[1;77m\e[45m Belum Ada Aplikasi Yang Dibuat, Buat Sekarang? [y/n]\e[0m : ' checkingFolder
+            
+            command cd $FOLDER && echo 'text' > .config
+            case $checkingFolder in
+                y|Y)
+                    installNewAngular
+                ;;
+                n|N)
+                    setup
+                ;;
+                *)
+                    daftarAngular
+                ;;
+            esac
+        else
+            command clear
+            printf "\e[1;77m\e[45m  List Aplikasi   \e[0m\n"
+
+            command ls $FOLDER
+
+            default_inputFile=default
+            read -p $'\n\e[1;92mMasukkan Nama Folder : \e[0m' inputFile
+            inputFile="${inputFile:-${default_inputFile}}"
+
+            case $inputFile in
+            exit)
+                command clear
+                setup
+            ;;
+            *)
+                if [ -d "$FOLDER/$inputFile" ]; then
+                    printf "\e[1;91mListening to $inputFile...\n"
+                    # command cd $FOLDER/$inputFile
+                    command cd $FOLDER/$inputFile && sudo ng serve
+                else
+                    printf "\e[1;91mFolder Tidak Ada\n"
+                    daftarAngular
+                fi
+            ;;
+            esac
+        fi
+    fi
+}
+
+installNewAngular(){
+    command clear
+    printf "\n\e[1;77m\e[45m  Install Angular   \e[0m\n"
+    
+    read -p $'\n\e[1;92mMasukkan Nama Aplikasi : \e[0m' inputApp
+
+    case $inputApp in
+        exit)
+            command clear
+            setup
+        ;;
+        *)
+            command cd $FOLDER
+            command sudo ng new ${inputApp}
+            daftarAngular
+        ;;
+    esac
+}
+
+hapusAngular(){
+    command clear
+    printf "\e[1;77m\e[45m  List Aplikasi   \e[0m\n"
+    command ls $FOLDER
+
+    default_inputFile=default
+    read -p $'\n\e[1;92mMasukkan Nama Folder : \e[0m' inputFile
+    inputFile="${inputFile:-${default_inputFile}}"
+
+    case $inputFile in
+        exit)
+            command clear
+            setup
+        ;;
+        *)
+            vol=$FOLDER/$inputFile
+            if [ -d "${vol}" ]
+            then
+                command sudo rm -r $FOLDER/$inputFile
+                setup
+            fi
+        ;;
+    esac
+}
+
+setup
